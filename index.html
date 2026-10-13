@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ujian / Formulir Fullscreen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <!-- LAYAR 1: HALAMAN PETUNJUK -->
+  <div id="startScreen" class="max-w-md w-full bg-white p-8 rounded-xl shadow-md text-center">
+    <h1 class="text-2xl font-bold text-slate-800 mb-2">Ujian Online</h1>
+    <p class="text-slate-600 mb-6 text-sm">
+      Formulir ini wajib dikerjakan dalam mode <strong>Fullscreen</strong>. Jika kamu keluar dari mode fullscreen, formulir akan otomatis terkunci.
+    </p>
+    <button id="btnStart" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+      Mulai Kerjakan (Masuk Fullscreen)
+    </button>
+  </div>
+
+  <!-- LAYAR 2: CONTAINER GOOGLE FORM -->
+  <div id="formContainer" class="hidden fixed inset-0 bg-slate-900 flex flex-col w-full h-full z-50">
+    
+    <!-- Bar Navigasi Atas -->
+    <div class="bg-slate-800 text-white px-6 py-3 flex justify-between items-center shadow border-b border-slate-700">
+      <div>
+        <h2 class="font-semibold text-sm md:text-base">Lembar Ujian Google Form</h2>
+        <p class="text-xs text-slate-400">Mode Fullscreen Aktif</p>
+      </div>
+      <span class="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500/30">
+        ● Ujian Berlangsung
+      </span>
+    </div>
+
+    <!-- Google Form Embedded -->
+    <div class="flex-1 w-full bg-white overflow-hidden">
+      <iframe 
+        id="googleFormIframe"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSdU5QN3NRdOjbSK_IFQKATL3QsoUnVOfs_jgSnDRlvwwJEtbw/viewform?embedded=true" 
+        class="w-full h-full border-0"
+        frameborder="0" 
+        marginheight="0" 
+        marginwidth="0">
+        Memuat...
+      </iframe>
+    </div>
+
+  </div>
+
+  <script>
+    const startScreen = document.getElementById('startScreen');
+    const formContainer = document.getElementById('formContainer');
+    const btnStart = document.getElementById('btnStart');
+
+    // 1. Fungsi Masuk Fullscreen
+    function enterFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    }
+
+    // 2. Klik Tombol "Mulai Kerjakan"
+    btnStart.addEventListener('click', () => {
+      enterFullscreen();
+      startScreen.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+    });
+
+    // 3. Deteksi Keluar Fullscreen (Misal pencet Esc atau tombol Home HP)
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        alert("Kamu keluar dari mode Fullscreen! Halaman akan dikembalikan ke layar utama.");
+        formContainer.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+      }
+    });
+
+    // 4. Deteksi Buka Layar Ngambang / Pindah Aplikasi / Pindah Tab (BLUR)
+    window.addEventListener('blur', () => {
+      // Hanya berjalan jika peserta sedang dalam posisi mengerjakan
+      if (!formContainer.classList.contains('hidden')) {
+        alert("Peringatan: Kamu terdeteksi berpindah aplikasi, membuka layar ngambang, atau pindah tab! Ujian dikunci.");
+        
+        // Keluar dari fullscreen jika masih aktif
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        
+        // Sembunyikan form dan kembalikan ke layar awal
+        formContainer.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
